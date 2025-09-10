@@ -15,6 +15,7 @@
 **特点**: 首个直接映射障碍物点到控制指令的端到端MPC规划器  
 **性能**: 实时运行（>15Hz），无需地图，支持任意凸形机器人  
 **引用**: IEEE Transactions on Robotics 2025
+**详细文档**: [NeuPAN/README.md](NeuPAN/README.md)
 
 **快速开始**:
 ```bash
@@ -28,6 +29,7 @@ python example/run_exp.py -e corridor -d acker
 **特点**: 基于ADMM的并行碰撞避免优化，支持动态障碍物  
 **性能**: 实时处理复杂环境，支持多种机器人运动学模型  
 **引用**: IEEE Robotics and Automation Letters 2023
+**详细文档**: [RDA-planner/README.md](RDA-planner/README.md)
 
 **快速开始**:
 ```bash
@@ -42,6 +44,7 @@ python example/corridor.py
 **特点**: 通用碰撞避免约束的平滑重构，支持四旋翼和自动驾驶停车  
 **应用**: 高质量轨迹生成，满足系统动力学和安全约束  
 **引用**: arXiv:1711.03449
+**详细文档**: [OBCA/README.md](OBCA/README.md)
 
 **快速开始**:
 ```bash
@@ -56,6 +59,7 @@ julia --project=AutonomousParking AutonomousParking/main.jl
 **特点**: 考虑车辆运动学的路径规划，支持Reeds-Shepp曲线  
 **性能**: 毫秒级响应（简单场景1ms，复杂场景3s）  
 **引用**: Stanford AI Lab, "Practical Search Techniques in Path Planning"
+**详细文档**: [hybrid_astar_planner/README.md](hybrid_astar_planner/README.md)
 
 **快速开始**:
 ```bash
@@ -69,6 +73,7 @@ python3 HybridAStar/hybrid_astar.py
 **特点**: ROS导航栈插件，优化轨迹执行时间和避障能力  
 **应用**: 2D移动机器人局部路径规划  
 **引用**: IEEE IROS 2017
+**详细文档**: [teb_local_planner/README.md](teb_local_planner/README.md)
 
 **快速开始**:
 ```bash
@@ -84,6 +89,7 @@ catkin_make
 **特点**: 结合MPC和深度学习的快速近优规划  
 **支持系统**: 倒立摆、小车、四旋翼、汽车等  
 **引用**: arXiv:2101.06798
+**详细文档**: [mpc-mpnet-py/README.md](mpc-mpnet-py/README.md)
 
 **快速开始**:
 ```bash
@@ -98,6 +104,7 @@ bash datagen_car_batch1.sh
 **特点**: 基于学习的运动规划，支持高维状态空间  
 **应用**: 复杂环境中的快速路径规划  
 **引用**: IEEE IROS 2020
+**详细文档**: [MPNet/README.md](MPNet/README.md)
 
 ### 群体机器人
 
@@ -105,11 +112,13 @@ bash datagen_car_batch1.sh
 **技术栈**: Python 3.7+, PyTorch, CrowdSim  
 **特点**: 密集人群中的机器人导航，强化学习方法  
 **场景**: 商场、机场等拥挤环境
+**详细文档**: [CrowdNav/README.md](CrowdNav/README.md)
 
 #### [AEMCARL](AEMCARL/) - 自适应人群规避
 **技术栈**: Python 3.7+, ROS  
 **特点**: 基于注意力机制的人群导航  
 **应用**: 服务机器人在动态人群中的导航
+**详细文档**: [AEMCARL/README.md](AEMCARL/README.md)
 
 ### 其他工具
 
@@ -117,14 +126,17 @@ bash datagen_car_batch1.sh
 **技术栈**: Julia 1.6+  
 **特点**: 专为自动驾驶停车场景优化的OBCA变体  
 **功能**: 平行泊车、倒车入库等复杂停车场景
+**详细文档**: [H-OBCA/README.md](H-OBCA/README.md)
 
 #### [Dftpav](Dftpav/) - 分布式轨迹规划验证
 **技术栈**: C++14, ROS  
 **特点**: 分布式多机器人轨迹规划验证框架
+**详细文档**: [Dftpav/README.md](Dftpav/README.md)
 
 #### [field_local_planner](field_local_planner/) - 场地局部规划器
 **技术栈**: C++14, ROS  
 **特点**: 专为农业/工业场地设计的局部路径规划
+**详细文档**: [field_local_planner/README.md](field_local_planner/README.md)
 
 ## 🚀 环境依赖与构建
 
