@@ -1,0 +1,12 @@
+## Goal
+geometry_msgs/PoseWithCovarianceStamped goal
+
+---
+
+## Result
+field_local_planner_msgs/Status status
+
+---
+
+## Feedback
+field_local_planner_msgs/Status status
