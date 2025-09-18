@@ -66,6 +66,9 @@ class DUNE(torch.nn.Module):
             sort_point_list: list of point tensor, each element is a tensor of shape (state_dim, num_points); list length: T+1; 
         '''
 
+        # mu_list: 存储每个时间步的障碍物点到机器人约束边界的距离特征向量列表
+        # lam_list: 存储每个时间步的lambda特征向量列表,用于将mu特征转换到机器人坐标系
+        # sort_point_list: 存储每个时间步按距离排序后的障碍物点列表
         mu_list, lam_list, sort_point_list = [], [], []
         self.obstacle_points = obs_points_list[0] # current obstacle points considered in the dune at time 0
 
@@ -75,24 +78,34 @@ class DUNE(torch.nn.Module):
         with torch.no_grad():
             total_mu = self.model(total_points.T).T
         
+        # 遍历每个时间步
         for index in range(self.T+1):
+            # 获取当前时间步的点数
             num_points = point_flow[index].shape[1]
+            # 从总的mu特征中切片获取当前时间步的mu
             mu = total_mu[:, index*num_points : (index+1)*num_points]
+            # 获取当前时间步的旋转矩阵和点流
             R = R_list[index]
             p0 = point_flow[index]
+            # 计算lambda特征,用于将mu特征转换到机器人坐标系
             lam = (- R @ self.G.T @ mu)
 
+            # 处理一维张量情况,增加维度
             if mu.ndim == 1:
                 mu = mu.unsqueeze(1)
                 lam = lam.unsqueeze(1)
 
+            # 计算目标距离
             distance = self.cal_objective_distance(mu, p0)
 
+            # 记录初始时刻的最小距离
             if index == 0: 
                 self.min_distance = torch.min(distance) 
             
+            # 根据距离对点进行排序
             sort_indices = torch.argsort(distance)
 
+            # 将排序后的特征和点添加到对应列表中
             mu_list.append(mu[:, sort_indices])
             lam_list.append(lam[:, sort_indices])
             sort_point_list.append(obs_points_list[index][:, sort_indices])
@@ -127,32 +140,45 @@ class DUNE(torch.nn.Module):
         '''
         checkpoint: pth file path of the model
         '''
-
+        # 尝试加载模型检查点
         try:
+            # 如果没有提供检查点路径,抛出异常
             if checkpoint is None:
                 raise FileNotFoundError
 
+            # 检查并获取检查点文件的绝对路径
             self.abs_checkpoint_path = file_check(checkpoint)
+            # 加载模型参数到CPU设备
             self.model.load_state_dict(torch.load(self.abs_checkpoint_path, map_location=torch.device('cpu')))
+            # 将模型移动到指定设备(CPU/GPU)
             to_device(self.model)
+            # 设置模型为评估模式
             self.model.eval()
 
         except FileNotFoundError:
+            # 处理找不到检查点文件的情况
 
+            # 如果没有提供训练参数,使用默认值
             if train_kwargs is None or len(train_kwargs) == 0:
                 print('No train kwargs provided. Default value will be used.')
                 train_kwargs = dict()
             
+            # 检查是否直接训练模式
             direct_train = train_kwargs.get('direct_train', False)
 
+            # 如果是直接训练模式,直接返回
             if direct_train:
                 print('train or test the model directly.')
                 return 
 
+            # 询问用户是否要训练模型
             if self.ask_to_train():
+                # 训练模型
                 self.train_dune(train_kwargs)
 
+                # 询问是否继续运行
                 if self.ask_to_continue():
+                    # 加载训练好的模型
                     self.model.load_state_dict(torch.load(self.full_model_name, map_location=torch.device('cpu')))
                     to_device(self.model)
                     self.model.eval()
@@ -160,19 +186,33 @@ class DUNE(torch.nn.Module):
                     print('You can set the new model path to the DUNE class to use the trained model.') 
 
             else:
+                # 如果用户选择不训练,抛出异常
                 print('Can not find checkpoint. Please check the path or train first.')
                 raise FileNotFoundError
 
-
     def train_dune(self, train_kwargs):
+        '''
+        训练DUNE模型的方法
 
+        Args:
+            train_kwargs: 训练参数字典,包含模型名称等配置
+
+        Returns:
+            None
+        '''
+        # 从训练参数中获取模型名称,如果未指定则使用机器人名称
         model_name = train_kwargs.get("model_name", self.robot.name)
 
+        # 构建模型保存路径
         checkpoint_path = sys.path[0] + '/model' + '/' + model_name
+        # 创建保存目录(如果不存在)
         checkpoint_path = repeat_mk_dirs(checkpoint_path)
         
+        # 初始化训练模型
         self.train_model = DUNETrain(self.model, self.G, self.h, checkpoint_path)
+        # 开始训练并获取完整模型保存路径
         self.full_model_name = self.train_model.start(**train_kwargs)
+        # 打印训练完成信息
         print('Complete Training. The model is saved in ' + self.full_model_name)
 
     def ask_to_train(self):
